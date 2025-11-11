@@ -1,0 +1,44 @@
+# n8n 워크플로우 생성 가이드 샘플
+
+## 목표
+이메일을 받으면 자동으로 Slack에 메시지를 전송하는 워크플로우 생성
+
+## 단계별 작업
+
+### 1단계: Webhook 트리거 추가
+- 노드 타입: Webhook
+- 설정:
+  - HTTP Method: POST
+  - Path: email-notification
+
+### 2단계: 이메일 파싱
+- 노드 타입: Code
+- 설정:
+  - Mode: Run Once for All Items
+  - JavaScript 코드:
+    ```javascript
+    const email = items[0].json;
+    return [{
+      json: {
+        subject: email.subject,
+        from: email.from,
+        body: email.body
+      }
+    }];
+    ```
+
+### 3단계: Slack 메시지 전송
+- 노드 타입: Slack
+- 설정:
+  - Resource: Message
+  - Operation: Post
+  - Channel: #general
+  - Message: 새 이메일 도착 - {{$json.subject}}
+
+### 4단계: 노드 연결
+- Webhook → Code
+- Code → Slack
+
+### 5단계: 워크플로우 활성화 및 테스트
+- Execute Workflow 버튼 클릭
+- 테스트 데이터로 확인
